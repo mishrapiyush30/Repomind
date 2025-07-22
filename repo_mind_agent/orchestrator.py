@@ -51,9 +51,12 @@ class RepoMindAgent:
         
         # Initialize OpenAI client
         if openai_api_key:
-            openai.api_key = openai_api_key
+            self.openai_api_key = openai_api_key
         else:
-            openai.api_key = os.getenv("OPENAI_API_KEY")
+            self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        
+        if not self.openai_api_key:
+            raise ValueError("OpenAI API key is required. Set OPENAI_API_KEY environment variable or pass openai_api_key parameter.")
         
         # ReAct loop state
         self.max_steps = 5
