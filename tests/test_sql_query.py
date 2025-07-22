@@ -191,7 +191,7 @@ class TestSQLiteETLLoader:
         # Test query with parameters
         results = loader.run_query(
             "SELECT hash, author_name FROM commits WHERE hash = ?",
-            {"hash": "abc123"}
+            ["abc123"]
         )
         
         assert len(results) == 1

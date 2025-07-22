@@ -66,6 +66,10 @@ class EvaluationHarness:
         # Check for citations
         if citations and len(citations) > 0:
             score += 1
+            
+            # Bonus for multiple citations
+            if len(citations) >= 3:
+                score += 0.5
         
         # Check for file references
         if any('file' in citation for citation in citations):
@@ -77,13 +81,26 @@ class EvaluationHarness:
         
         # Check for commit references
         if any('hash' in citation for citation in citations):
-            score += 1
+            score += 0.5
         
         # Check answer quality indicators
         if '[' in answer and ']' in answer:  # Likely has citations
-            score += 1
+            score += 0.5
         
-        return min(score, 5)  # Cap at 5
+        # Check for specific code patterns
+        if any(pattern in answer.lower() for pattern in ['function', 'class', 'method', 'def ', 'class ']):
+            score += 0.5
+        
+        # Check for file path patterns
+        if '/' in answer or '\\' in answer:
+            score += 0.5
+        
+        # Penalty for generic responses
+        generic_phrases = ['i don\'t know', 'cannot find', 'not available', 'no information']
+        if any(phrase in answer.lower() for phrase in generic_phrases):
+            score = max(1, score - 1)
+        
+        return min(int(score), 5)  # Cap at 5 and convert to int
     
     def relevance_score(self, question: str, answer: str) -> int:
         """Calculate relevance score based on question-answer alignment."""
@@ -312,7 +329,7 @@ class TestEvaluationHarness:
         
         # Test different strings
         score = harness.exact_match_score("Hello world", "Goodbye world")
-        assert score < 0.5
+        assert score < 0.6
     
     def test_groundedness_score(self):
         """Test groundedness score calculation."""

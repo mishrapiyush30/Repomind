@@ -46,7 +46,7 @@ dev = [
 ]
 
 [project.scripts]
-repomind = "repo_mind_agent.cli:main"
+repomind = "repo_mind_agent.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -70,4 +70,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=repo_mind_agent --cov-report=term-missing --cov-report=html" 
+addopts = "--cov=repo_mind_agent --cov-report=term-missing --cov-report=html --cov-fail-under=40" 
