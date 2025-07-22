@@ -1,0 +1,206 @@
+# Golden Q&A Dataset for RepoMind Agent Evaluation
+# This file contains sample questions and expected answers for testing the agent
+
+evaluation_questions:
+  - question: "Where is the main function defined?"
+    expected_answer: |
+      The main function should be found in the codebase, typically in files like:
+      - main.py
+      - app.py
+      - __main__.py
+      - index.py
+      
+      The answer should include:
+      - File path and line number
+      - Function signature
+      - Brief description of what the function does
+    category: "code_location"
+    difficulty: "easy"
+    
+  - question: "What are the most complex functions in the codebase?"
+    expected_answer: |
+      The answer should identify functions with high cyclomatic complexity, including:
+      - Function names and locations
+      - Complexity scores
+      - Brief explanation of why they're complex
+      - Recommendations for refactoring if applicable
+    category: "code_quality"
+    difficulty: "medium"
+    
+  - question: "Who are the main contributors to this repository?"
+    expected_answer: |
+      Should provide information about:
+      - Top contributors by commit count
+      - Recent activity patterns
+      - Author names and email addresses
+      - Contribution statistics (lines added/removed)
+    category: "repository_metadata"
+    difficulty: "easy"
+    
+  - question: "What are the most frequently changed files?"
+    expected_answer: |
+      Should identify files that have been modified most often, including:
+      - File paths
+      - Number of changes
+      - Recent modification dates
+      - Types of changes (additions, deletions, modifications)
+    category: "repository_metadata"
+    difficulty: "medium"
+    
+  - question: "Are there any TODO comments that need attention?"
+    expected_answer: |
+      Should find and list TODO comments, including:
+      - File locations and line numbers
+      - TODO message content
+      - Priority assessment if possible
+      - Categorization (bug, feature, refactor, etc.)
+    category: "code_quality"
+    difficulty: "easy"
+    
+  - question: "What is the overall code quality of this repository?"
+    expected_answer: |
+      Should provide a comprehensive assessment including:
+      - Linting results (errors, warnings)
+      - Cyclomatic complexity metrics
+      - Code coverage if available
+      - Overall health score
+      - Specific recommendations for improvement
+    category: "code_quality"
+    difficulty: "hard"
+    
+  - question: "How is error handling implemented?"
+    expected_answer: |
+      Should identify error handling patterns, including:
+      - Try-catch blocks and their locations
+      - Custom exception classes
+      - Error logging mechanisms
+      - Error recovery strategies
+      - Common error types handled
+    category: "code_analysis"
+    difficulty: "medium"
+    
+  - question: "What are the main dependencies and imports?"
+    expected_answer: |
+      Should list the main dependencies, including:
+      - External libraries and frameworks
+      - Internal module imports
+      - Version information if available
+      - Purpose of each major dependency
+    category: "code_analysis"
+    difficulty: "easy"
+    
+  - question: "Find all database-related code"
+    expected_answer: |
+      Should identify database-related code, including:
+      - Database connection code
+      - SQL queries
+      - ORM usage
+      - Database configuration
+      - Schema definitions
+    category: "code_location"
+    difficulty: "medium"
+    
+  - question: "What testing framework is used?"
+    expected_answer: |
+      Should identify testing infrastructure, including:
+      - Testing framework (pytest, unittest, etc.)
+      - Test file locations
+      - Test configuration
+      - Coverage tools
+      - Testing patterns used
+    category: "code_analysis"
+    difficulty: "easy"
+    
+  - question: "How is authentication implemented?"
+    expected_answer: |
+      Should find authentication-related code, including:
+      - Authentication methods used
+      - User management code
+      - Security implementations
+      - Token handling
+      - Session management
+    category: "code_analysis"
+    difficulty: "hard"
+    
+  - question: "What are the API endpoints?"
+    expected_answer: |
+      Should identify API endpoints, including:
+      - Route definitions
+      - HTTP methods supported
+      - Request/response schemas
+      - Authentication requirements
+      - Documentation if available
+    category: "code_location"
+    difficulty: "medium"
+    
+  - question: "Find configuration files and settings"
+    expected_answer: |
+      Should identify configuration-related files, including:
+      - Configuration file locations
+      - Environment variable usage
+      - Default settings
+      - Configuration patterns
+      - Documentation of settings
+    category: "code_location"
+    difficulty: "easy"
+    
+  - question: "What is the project structure?"
+    expected_answer: |
+      Should provide an overview of the project structure, including:
+      - Main directories and their purposes
+      - Key files and their roles
+      - Module organization
+      - Build/deployment structure
+    category: "repository_metadata"
+    difficulty: "easy"
+    
+  - question: "How is logging implemented?"
+    expected_answer: |
+      Should identify logging implementation, including:
+      - Logging framework used
+      - Log levels and configuration
+      - Log file locations
+      - Logging patterns
+      - Error logging strategies
+    category: "code_analysis"
+    difficulty: "medium"
+    
+  - question: "What are the performance bottlenecks?"
+    expected_answer: |
+      Should identify potential performance issues, including:
+      - Complex algorithms
+      - Inefficient data structures
+      - Resource-intensive operations
+      - Optimization opportunities
+      - Profiling results if available
+    category: "code_quality"
+    difficulty: "hard"
+
+evaluation_metrics:
+  exact_match_threshold: 0.7
+  groundedness_threshold: 4.0
+  max_response_time: 30  # seconds
+  min_citations: 1
+  max_citations: 10
+
+scoring_rubric:
+  groundedness:
+    5: "Answer is completely grounded in the codebase with specific file/line citations"
+    4: "Answer is mostly grounded with some citations and specific details"
+    3: "Answer is partially grounded with general references"
+    2: "Answer has minimal grounding in the codebase"
+    1: "Answer is not grounded and appears to be hallucinated"
+    
+  relevance:
+    5: "Answer directly addresses the question with high precision"
+    4: "Answer addresses the question with good relevance"
+    3: "Answer is somewhat relevant but may be incomplete"
+    2: "Answer has limited relevance to the question"
+    1: "Answer is not relevant to the question"
+    
+  completeness:
+    5: "Answer provides comprehensive information covering all aspects"
+    4: "Answer covers most important aspects of the question"
+    3: "Answer covers some aspects but may be incomplete"
+    2: "Answer covers only basic aspects"
+    1: "Answer is incomplete or missing key information" 

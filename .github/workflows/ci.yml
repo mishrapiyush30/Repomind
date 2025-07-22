@@ -1,0 +1,165 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'   # nightly eval
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install -e ".[dev]"
+    
+    - name: Run pre-commit hooks
+      run: |
+        pre-commit run --all-files
+    
+    - name: Run tests
+      run: |
+        pytest --cov=repo_mind_agent --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run ruff
+      run: |
+        ruff check .
+    
+    - name: Run black
+      run: |
+        black --check .
+    
+    - name: Run isort
+      run: |
+        isort --check-only .
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install bandit safety
+    
+    - name: Run bandit security scan
+      run: |
+        bandit -r repo_mind_agent/ -f json -o bandit-report.json || true
+    
+    - name: Run safety check
+      run: |
+        safety check --json --output safety-report.json || true
+
+  evaluation:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+    
+    - name: Set up PostgreSQL
+      uses: Harmon758/postgresql-action@v1.0.0
+      with:
+        postgresql version: '14'
+        postgresql db: 'repomind'
+        postgresql user: 'postgres'
+        postgresql password: 'password'
+    
+    - name: Run evaluation
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        DATABASE_URL: postgresql://postgres:password@localhost:5432/repomind
+      run: |
+        # Create a test repository for evaluation
+        mkdir -p test_repo
+        echo "def main(): pass" > test_repo/main.py
+        echo "# TODO: Add tests" >> test_repo/main.py
+        
+        # Run evaluation
+        python tests/test_eval_harness.py test_repo evaluation_results.json
+    
+    - name: Upload evaluation results
+      uses: actions/upload-artifact@v3
+      with:
+        name: evaluation-results
+        path: evaluation_results.json
+
+  deploy:
+    needs: [test, lint, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Fly CLI
+      uses: superfly/flyctl-actions/setup-flyctl@master
+    
+    - name: Deploy to Fly.io
+      run: |
+        flyctl deploy --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    
+    - name: Notify deployment
+      run: |
+        echo "Deployment completed successfully!"
+        echo "App URL: https://repo-mind-agent.fly.dev" 

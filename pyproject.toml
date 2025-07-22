@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repo-mind-agent"
+version = "0.1.0"
+description = "An intelligent agent that provides instant understanding of codebases through semantic search, SQL queries, and static analysis"
+authors = [
+    {name = "RepoMind Team", email = "team@repomind.ai"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+            dependencies = [
+                "gitpython>=3.1.0",
+                "click>=8.0.0",
+                "fastapi>=0.100.0",
+                "uvicorn[standard]>=0.20.0",
+                "sentence-transformers>=2.2.0",
+                "pgvector>=0.2.0",
+                "ruff>=0.0.280",
+                "radon>=5.1.0",
+                "pytest>=7.0.0",
+                "pytest-cov>=4.0.0",
+                "streamlit>=1.25.0",
+                "plotly>=5.15.0",
+                "pyyaml>=6.0",
+                "psycopg2-binary>=2.9.0",
+                "openai>=1.0.0",
+            ]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+]
+
+[project.scripts]
+repomind = "repo_mind_agent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = ["E", "F", "W", "C", "B", "I", "N", "UP", "PL", "RUF"]
+ignore = ["E501", "B008", "C901"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=repo_mind_agent --cov-report=term-missing --cov-report=html" 
