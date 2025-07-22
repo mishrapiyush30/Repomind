@@ -81,7 +81,8 @@ Plan your approach step by step.
 """
         
         try:
-            response = openai.ChatCompletion.create(
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=300,
@@ -114,7 +115,8 @@ Choose the tool that will provide the most relevant information for the question
 """
         
         try:
-            response = openai.ChatCompletion.create(
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=200,
@@ -226,7 +228,8 @@ Focus on information that directly relates to the original question.
 """
         
         try:
-            response = openai.ChatCompletion.create(
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=300,
@@ -269,7 +272,8 @@ Format your answer in Markdown with proper citations like [file.py:42] for line 
 """
         
         try:
-            response = openai.ChatCompletion.create(
+            client = openai.OpenAI(api_key=self.openai_api_key)
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=800,

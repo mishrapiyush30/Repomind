@@ -165,19 +165,19 @@ class VectorSearch:
         if file_filter:
             sql = """
                 SELECT file_path, start_line, end_line, content, 
-                       1 - (embedding <=> %s) as similarity
+                       embedding <-> %s as distance
                 FROM code_embeddings
                 WHERE file_path LIKE %s
-                ORDER BY embedding <=> %s
+                ORDER BY embedding <-> %s
                 LIMIT %s
             """
             params = (query_embedding.tolist(), f"%{file_filter}%", query_embedding.tolist(), top_k)
         else:
             sql = """
                 SELECT file_path, start_line, end_line, content, 
-                       1 - (embedding <=> %s) as similarity
+                       embedding <-> %s as distance
                 FROM code_embeddings
-                ORDER BY embedding <=> %s
+                ORDER BY embedding <-> %s
                 LIMIT %s
             """
             params = (query_embedding.tolist(), query_embedding.tolist(), top_k)
