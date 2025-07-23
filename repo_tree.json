@@ -1,0 +1,176 @@
+{
+  "repo_url": ".",
+  "repo_name": ".",
+  "total_files": 22,
+  "total_dirs": 6,
+  "files": [
+    {
+      "path": ".pre-commit-config.yaml",
+      "is_dir": false,
+      "size": 808,
+      "modified": 1753234989.6327574
+    },
+    {
+      "path": "Dockerfile",
+      "is_dir": false,
+      "size": 1416,
+      "modified": 1753234989.6328375
+    },
+    {
+      "path": "Makefile",
+      "is_dir": false,
+      "size": 5084,
+      "modified": 1753234989.6329875
+    },
+    {
+      "path": "README.md",
+      "is_dir": false,
+      "size": 4228,
+      "modified": 1753234989.6332889
+    },
+    {
+      "path": "docs",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.6333942
+    },
+    {
+      "path": "docs/demo.md",
+      "is_dir": false,
+      "size": 7981,
+      "modified": 1753234989.633498
+    },
+    {
+      "path": "fly.toml",
+      "is_dir": false,
+      "size": 589,
+      "modified": 1753234989.6335871
+    },
+    {
+      "path": "golden_qas.yaml",
+      "is_dir": false,
+      "size": 7098,
+      "modified": 1753234989.6337256
+    },
+    {
+      "path": "pyproject.toml",
+      "is_dir": false,
+      "size": 2030,
+      "modified": 1753234989.6338391
+    },
+    {
+      "path": "repo_mind_agent",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.6349359
+    },
+    {
+      "path": "repo_mind_agent/__init__.py",
+      "is_dir": false,
+      "size": 324,
+      "modified": 1753234989.6339707
+    },
+    {
+      "path": "repo_mind_agent/cli.py",
+      "is_dir": false,
+      "size": 11154,
+      "modified": 1753234989.6340952
+    },
+    {
+      "path": "repo_mind_agent/orchestrator.py",
+      "is_dir": false,
+      "size": 15345,
+      "modified": 1753234989.6342635
+    },
+    {
+      "path": "repo_mind_agent/tools",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.6347587
+    },
+    {
+      "path": "repo_mind_agent/tools/sql_query.py",
+      "is_dir": false,
+      "size": 11980,
+      "modified": 1753234989.634519
+    },
+    {
+      "path": "repo_mind_agent/tools/static_analysis.py",
+      "is_dir": false,
+      "size": 17576,
+      "modified": 1753234989.634686
+    },
+    {
+      "path": "repo_mind_agent/tools/vector_search.py",
+      "is_dir": false,
+      "size": 13920,
+      "modified": 1753234989.6348917
+    },
+    {
+      "path": "repo_mind_agent/ui",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.6350052
+    },
+    {
+      "path": "repo_mind_agent/ui/trace_viewer.py",
+      "is_dir": false,
+      "size": 9801,
+      "modified": 1753234989.6351018
+    },
+    {
+      "path": "repo_mind_agent_cursor_implementation_guide.md",
+      "is_dir": false,
+      "size": 6486,
+      "modified": 1753234989.6352634
+    },
+    {
+      "path": "scripts",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.635366
+    },
+    {
+      "path": "scripts/ingest_repo.py",
+      "is_dir": false,
+      "size": 4270,
+      "modified": 1753234989.635454
+    },
+    {
+      "path": "tests",
+      "is_dir": true,
+      "size": 0,
+      "modified": 1753234989.6360781
+    },
+    {
+      "path": "tests/test_eval_harness.py",
+      "is_dir": false,
+      "size": 17973,
+      "modified": 1753234989.6356263
+    },
+    {
+      "path": "tests/test_ingest_repo.py",
+      "is_dir": false,
+      "size": 6283,
+      "modified": 1753234989.635771
+    },
+    {
+      "path": "tests/test_orchestrator.py",
+      "is_dir": false,
+      "size": 10686,
+      "modified": 1753234989.635879
+    },
+    {
+      "path": "tests/test_sql_query.py",
+      "is_dir": false,
+      "size": 13288,
+      "modified": 1753234989.6360283
+    },
+    {
+      "path": "tests/test_vector_search.py",
+      "is_dir": false,
+      "size": 12499,
+      "modified": 1753234989.636315
+    }
+  ]
+}

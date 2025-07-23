@@ -104,7 +104,8 @@ class VectorSearch:
                         end_line INTEGER,
                         content TEXT NOT NULL,
                         embedding vector(1024),
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(file_path, start_line, end_line)
                     )
                 """)
                 
@@ -139,9 +140,13 @@ class VectorSearch:
         with psycopg2.connect(self.db_url) as conn:
             with conn.cursor() as cursor:
                 for chunk in chunks:
+                    # Convert numpy array to PostgreSQL vector format
+                    embedding_list = chunk['embedding'].tolist()
+                    embedding_str = "[" + ",".join(str(x) for x in embedding_list) + "]"
+                    
                     cursor.execute("""
                         INSERT INTO code_embeddings (file_path, start_line, end_line, content, embedding)
-                        VALUES (%s, %s, %s, %s, %s)
+                        VALUES (%s, %s, %s, %s, %s::vector)
                         ON CONFLICT (file_path, start_line, end_line) 
                         DO UPDATE SET 
                             content = EXCLUDED.content,
@@ -152,7 +157,7 @@ class VectorSearch:
                         chunk['start_line'],
                         chunk['end_line'],
                         chunk['text'],
-                        chunk['embedding'].tolist()
+                        embedding_str
                     ))
                 conn.commit()
     
@@ -162,25 +167,29 @@ class VectorSearch:
         query_embedding = self.embed_text(query)
         
         # Build search query
+        # Convert numpy array to list and then to proper PostgreSQL vector format
+        embedding_list = query_embedding.tolist()
+        embedding_str = "[" + ",".join(str(x) for x in embedding_list) + "]"
+        
         if file_filter:
             sql = """
                 SELECT file_path, start_line, end_line, content, 
-                       embedding <-> %s as distance
+                       embedding <-> %s::vector as distance
                 FROM code_embeddings
                 WHERE file_path LIKE %s
-                ORDER BY embedding <-> %s
+                ORDER BY embedding <-> %s::vector
                 LIMIT %s
             """
-            params = (query_embedding.tolist(), f"%{file_filter}%", query_embedding.tolist(), top_k)
+            params = (embedding_str, f"%{file_filter}%", embedding_str, top_k)
         else:
             sql = """
                 SELECT file_path, start_line, end_line, content, 
-                       embedding <-> %s as distance
+                       embedding <-> %s::vector as distance
                 FROM code_embeddings
-                ORDER BY embedding <-> %s
+                ORDER BY embedding <-> %s::vector
                 LIMIT %s
             """
-            params = (query_embedding.tolist(), query_embedding.tolist(), top_k)
+            params = (embedding_str, embedding_str, top_k)
         
         with psycopg2.connect(self.db_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:

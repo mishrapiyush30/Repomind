@@ -28,6 +28,9 @@ class StaticAnalyzer:
                 cmd.append(str(self.repo_path / file_path))
             else:
                 cmd.append(str(self.repo_path))
+                
+                # Add exclude patterns for virtual environments
+                cmd.extend(["--exclude", "venv,env,.venv,.env,__pycache__,.git"])
             
             result = subprocess.run(
                 cmd,
@@ -97,6 +100,9 @@ class StaticAnalyzer:
                 cmd.append(str(self.repo_path / file_path))
             else:
                 cmd.append(str(self.repo_path))
+                
+                # Add exclude patterns for virtual environments
+                cmd.extend(["--exclude", "*venv*,*env*,*__pycache__*,*.git*"])
             
             result = subprocess.run(
                 cmd,
@@ -172,8 +178,13 @@ class StaticAnalyzer:
             if file_path and search_path.is_file():
                 files_to_search = [search_path]
             else:
-                # Find all Python files
-                files_to_search = list(search_path.rglob("*.py"))
+                # Find all Python files, excluding virtual environments
+                files_to_search = []
+                excluded_dirs = ['venv', '.venv', 'env', '.env', '__pycache__', '.git']
+                
+                for py_file in search_path.rglob("*.py"):
+                    if not any(excluded in str(py_file) for excluded in excluded_dirs):
+                        files_to_search.append(py_file)
             
             todo_patterns = [
                 r"#\s*TODO[:\s]*(.+)",
@@ -196,12 +207,25 @@ class StaticAnalyzer:
                         for pattern in todo_patterns:
                             match = re.search(pattern, line, re.IGNORECASE)
                             if match:
-                                file_todos.append({
-                                    "line": line_num,
-                                    "type": pattern.split()[1].replace(r"[:\s]*", "").replace("(.+)", ""),
-                                    "message": match.group(1).strip() if match.group(1) else "",
-                                    "full_line": line.strip()
-                                })
+                                try:
+                                    pattern_parts = pattern.split()
+                                    todo_type = "TODO"  # Default type
+                                    if len(pattern_parts) > 1:
+                                        todo_type = pattern_parts[1].replace(r"[:\s]*", "").replace("(.+)", "")
+                                    
+                                    message = ""
+                                    if match.groups() and len(match.groups()) > 0:
+                                        message = match.group(1).strip()
+                                    
+                                    file_todos.append({
+                                        "line": line_num,
+                                        "type": todo_type,
+                                        "message": message,
+                                        "full_line": line.strip()
+                                    })
+                                except Exception:
+                                    # Skip this match if there's an error processing it
+                                    continue
                                 total_count += 1
                     
                     if file_todos:
@@ -253,10 +277,18 @@ class StaticAnalyzer:
         todo_result = self.count_todos()
         
         # Get file statistics
-        python_files = list(self.repo_path.rglob("*.py"))
+        python_files = []
         total_lines = 0
         
-        for file_path in python_files:
+        # Skip virtual environment directories
+        excluded_dirs = ['venv', '.venv', 'env', '.env', '__pycache__', '.git']
+        
+        for file_path in Path(self.repo_path).rglob("*.py"):
+            # Check if file is in an excluded directory
+            if any(excluded in str(file_path) for excluded in excluded_dirs):
+                continue
+                
+            python_files.append(file_path)
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     total_lines += len(f.readlines())
@@ -391,6 +423,79 @@ class StaticAnalyzer:
             recommendations.append("Review and address TODO comments in the codebase")
         
         return recommendations
+
+    def get_most_complex_functions(self, limit: int = 10) -> Dict[str, Any]:
+        """Return the top N most complex functions in the repository."""
+        try:
+            cmd = ["radon", "cc", "--json"]
+            cmd.append(str(self.repo_path))
+            cmd.extend(["--exclude", "*venv*,*env*,*__pycache__*,*.git*"])
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                cwd=self.repo_path,
+                timeout=60
+            )
+            
+            if result.returncode == 0:
+                try:
+                    complexity_data = json.loads(result.stdout)
+                    
+                    # Extract all functions with their complexity
+                    all_functions = []
+                    
+                    for file_path, functions in complexity_data.items():
+                        for function in functions:
+                            all_functions.append({
+                                "file_path": file_path,
+                                "name": function.get("name", ""),
+                                "complexity": function.get("complexity", 0),
+                                "line_number": function.get("lineno", 0),
+                                "endline": function.get("endline", 0),
+                                "type": function.get("type", "")
+                            })
+                    
+                    # Sort by complexity (descending)
+                    all_functions.sort(key=lambda x: x["complexity"], reverse=True)
+                    
+                    # Return only the top N functions
+                    top_functions = all_functions[:limit]
+                    
+                    return {
+                        "success": True,
+                        "top_complex_functions": top_functions,
+                        "total_functions_analyzed": len(all_functions)
+                    }
+                except json.JSONDecodeError:
+                    return {
+                        "success": False,
+                        "error": "Failed to parse radon output",
+                        "stdout": result.stdout,
+                        "stderr": result.stderr
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Radon analysis failed: {result.stderr}"
+                }
+                
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "error": "Radon analysis timed out"
+            }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "Radon not found. Please install radon: pip install radon"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Radon analysis failed: {str(e)}"
+            }
 
 
 def analyze_repository_static(repo_path: str) -> Dict[str, Any]:

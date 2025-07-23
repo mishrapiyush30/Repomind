@@ -326,6 +326,35 @@ def ui(repo_path, port):
         return 1
 
 
+@cli.command()
+@click.argument("repo_path", type=click.Path(exists=True))
+@click.option("--limit", "-l", default=10, help="Number of functions to show")
+def most_complex(repo_path: str, limit: int):
+    """Show the most complex functions in the repository."""
+    from repo_mind_agent.tools.static_analysis import StaticAnalyzer
+    
+    print(f"🔍 Finding most complex functions in: {repo_path}")
+    analyzer = StaticAnalyzer(repo_path)
+    result = analyzer.get_most_complex_functions(limit)
+    
+    if result["success"]:
+        print(f"\nTop {limit} most complex functions:")
+        print(f"Total functions analyzed: {result['total_functions_analyzed']}\n")
+        
+        print(f"{'Complexity':<10} {'Type':<10} {'File':<30} {'Function':<20} {'Line':<10}")
+        print("-" * 80)
+        
+        for func in result["top_complex_functions"]:
+            # Get just the filename without the full path
+            file_path = func["file_path"]
+            if "/" in file_path:
+                file_path = file_path.split("/")[-1]
+            
+            print(f"{func['complexity']:<10} {func['type']:<10} {file_path:<30} {func['name']:<20} {func['line_number']:<10}")
+    else:
+        print(f"❌ Error: {result.get('error', 'Unknown error')}")
+
+
 def main():
     """Main entry point."""
     cli()
